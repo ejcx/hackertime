@@ -1,36 +1,26 @@
 package hackertime
 
 import (
-	"crypto/rand"
-	"fmt"
 	"log"
 
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
-func Encrypt(s string) {
+func Encrypt(s string, nonce [24]byte, key [32]byte) []byte {
 	var (
-		out   []byte
-		nonce [24]byte
-		key   [32]byte
+		out []byte
 	)
-
-	n, err := rand.Read(nonce[:])
-	if err != nil {
-		log.Fatalf("Could not read random bytes: %s", err)
-	}
-	n, err = rand.Read(key[:])
-	if err != nil {
-		log.Fatalf("Could not read random bytes: %s", err)
-	}
-	fmt.Printf("you read %d bytes\n", n)
-	fmt.Printf("your bytes %s\n", nonce)
-	fmt.Printf("your bytes %s\n", key)
-	buf := secretbox.Seal(out, []byte(s), &nonce, &key)
-
-	fmt.Println(buf)
+	ciphertext := secretbox.Seal(out, []byte(s), &nonce, &key)
+	return ciphertext
 }
 
-func Decrypt() {
-
+func Decrypt(ciphertext []byte, nonce [24]byte, key [32]byte) []byte {
+	var (
+		out []byte
+	)
+	plaintext, ok := secretbox.Open(out, ciphertext, &nonce, &key)
+	if !ok {
+		log.Fatal("Open operation not okay")
+	}
+	return plaintext
 }
